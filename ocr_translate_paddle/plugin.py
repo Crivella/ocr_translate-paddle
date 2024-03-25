@@ -37,6 +37,7 @@ class PaddleOCRModel(m.OCRModel):
         super().__init__(*args, **kwargs)
 
         self.reader = None
+        self.lang = None
         self.dev = os.environ.get('DEVICE', 'cpu')
 
     def load(self):
@@ -45,7 +46,11 @@ class PaddleOCRModel(m.OCRModel):
 
     def unload(self) -> None:
         """Unload the model from memory."""
-        logger.debug('Unloading PaddleOCR model (nothing to do here)')
+        logger.debug('Unloading PaddleOCR model')
+        self.lang = None
+        if self.reader is not None:
+            del self.reader
+            self.reader = None
 
     def _ocr(
             self,
@@ -66,22 +71,23 @@ class PaddleOCRModel(m.OCRModel):
             str: The text extracted from the image.
         """
 
-        ocr = PaddleOCR(
-            use_angle_cls=True, lang=lang,
-            use_gpu=(self.dev == 'cuda')
-            )
-        result = ocr.ocr(np.array(img), cls=True)[0]
+        if lang != self.lang:
+            self.lang = lang
+            self.reader = PaddleOCR(
+                use_angle_cls=True, lang=lang,
+                use_gpu=(self.dev == 'cuda')
+                )
+
+        result = self.reader.ocr(
+            np.array(img), cls=True,
+            det=False
+            )[0]
 
         logger.debug(f'PaddleOCR result: {result}')
 
         generated_text = []
         for line in result:
-            # box = np.array(line[0])
-            # l = box[:, 0].min()
-            # t = box[:, 1].min()
-            # r = box[:, 0].max()
-            # b = box[:, 1].max()
-            text, _ = line[1]
+            text, _ = line
             generated_text.append(text)
 
         generated_text = ' '.join(generated_text)
