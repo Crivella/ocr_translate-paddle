@@ -20,6 +20,27 @@
 
 __version__ = '0.1.0'
 
+paddle_box_model_data = {
+    'name': 'paddle/paddle-box',
+    'lang': [
+        'ar', 'en', 'hi', 'fr', 'fa', 'ur', 'oc', 'it', 'mr', 'ne', 'pt', 'bg', 'et', 'be', 'ga', 'te', 'hr', 'hu',
+        'ta', 'id', 'af', 'is', 'az', 'ku', 'bs', 'lt', 'cs', 'lv', 'cy', 'mi', 'da', 'ms', 'mt', 'no', 'pl', 'sk',
+        'sl', 'sq', 'sv', 'sw', 'tl', 'tr', 'uz', 'ug', 'vi', 'mn', 'es', 'ru', 'uk', 'nl', 'ro',
+        'zht', 'zh', 'ja', 'ko', 'de', 'sr', 'av'
+        ],
+    'lang_code': 'iso1',
+    'iso1_map': {
+        'zht': 'chinese_cht',
+        'zh': 'ch',
+        'de': 'german',
+        'ja': 'japan',
+        'ko': 'korean',
+        'sr': 'rs_cyrillic',
+        'av': 'ava',
+    },
+    'entrypoint': 'paddle.box',
+}
+
 paddle_ocr_model_data = {
     'name': 'paddle/paddle-ocr',
     'lang': [
