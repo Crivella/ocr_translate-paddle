@@ -80,14 +80,15 @@ class PaddleOCRModel(m.OCRModel):
 
         result = self.reader.ocr(
             np.array(img), cls=True,
-            det=False
+            # det=False
             )[0]
+        result = result or []
 
         logger.debug(f'PaddleOCR result: {result}')
 
         generated_text = []
         for line in result:
-            text, _ = line
+            text, _ = line[1]
             generated_text.append(text)
 
         generated_text = ' '.join(generated_text)
