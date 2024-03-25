@@ -25,7 +25,7 @@ paddle_ocr_model_data = {
     'lang': [
         'ar', 'en', 'hi', 'fr', 'fa', 'ur', 'oc', 'it', 'mr', 'ne', 'pt', 'bg', 'et', 'be', 'ga', 'te', 'hr', 'hu',
         'ta', 'id', 'af', 'is', 'az', 'ku', 'bs', 'lt', 'cs', 'lv', 'cy', 'mi', 'da', 'ms', 'mt', 'no', 'pl', 'sk',
-        'sl', 'sq', 'sv', 'sw', 'tl', 'tr', 'uz', 'ug', 'vi', 'mn', 'es', 'ru', 'uk', 'nl', 'ro'
+        'sl', 'sq', 'sv', 'sw', 'tl', 'tr', 'uz', 'ug', 'vi', 'mn', 'es', 'ru', 'uk', 'nl', 'ro',
         'zht', 'zh', 'ja', 'ko', 'de', 'sr', 'av'
         ],
     'lang_code': 'iso1',
@@ -38,5 +38,6 @@ paddle_ocr_model_data = {
         'sr': 'rs_cyrillic',
         'av': 'ava',
     },
-    'entrypoint': 'paddle.ocr'
+    'entrypoint': 'paddle.ocr',
+    'ocr_mode': 'single'
 }

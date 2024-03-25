@@ -18,6 +18,7 @@
 ###################################################################################
 """ocr_translate plugin to allow loading of PaddleOCR."""
 import logging
+import os
 
 import numpy as np
 from ocr_translate import models as m
@@ -26,10 +27,17 @@ from PIL import Image
 
 logger = logging.getLogger('plugin')
 
-class HugginfaceVEDModel(m.OCRModel):
+class PaddleOCRModel(m.OCRModel):
     """OCRtranslate plugin to allow loading of PaddleOCR as text OCR."""
     class Meta: # pylint: disable=missing-class-docstring
         proxy = True
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the model."""
+        super().__init__(*args, **kwargs)
+
+        self.reader = None
+        self.dev = os.environ.get('DEVICE', 'cpu')
 
     def load(self):
         """Load the model into memory."""
@@ -58,7 +66,10 @@ class HugginfaceVEDModel(m.OCRModel):
             str: The text extracted from the image.
         """
 
-        ocr = PaddleOCR(use_angle_cls=True, lang=lang) # need to run only once to download and load model into memory
+        ocr = PaddleOCR(
+            use_angle_cls=True, lang=lang,
+            use_gpu=(self.dev == 'cuda')
+            )
         result = ocr.ocr(np.array(img), cls=True)[0]
 
         logger.debug(f'PaddleOCR result: {result}')
