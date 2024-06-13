@@ -20,15 +20,19 @@ requires-python = ">=3.10"
 dependencies = [
     "django-ocr_translate>=0.5.0,<1.0",
     "numpy",
-    "paddlepaddle",
-    "paddlepaddle-gpu",
-    "paddleocr",
+    "paddleocr==2.7.3",
 ]
 
 [project.urls]
 Source = "https://github.com/Crivella/ocr_translate-paddle"
 
 [project.optional-dependencies]
+cpu = [
+    "paddlepaddle==2.6.1",
+]
+gpu = [
+    "paddlepaddle-gpu==2.6.1",
+]
 release = [
     "flit",
 ]
