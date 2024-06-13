@@ -18,7 +18,7 @@
 ###################################################################################
 """Plugins to enable usage of PaddleOCR in ocr_translate"""
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 paddle_box_model_data = {
     'name': 'paddle/paddle-box',
