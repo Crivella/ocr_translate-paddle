@@ -58,7 +58,12 @@ def image_pillow():
     return Image.fromarray(npimg)
 
 @pytest.fixture()
-def paddleocr_box_model() -> paddle.PaddleBOXModel:
+def paddle_ocr_env(monkeypatch):
+    """Set environment variables for paddleocr."""
+    monkeypatch.setenv('PADDLEOCR_PREFIX', '/path/to/paddleocr')
+
+@pytest.fixture()
+def paddleocr_box_model(paddle_ocr_env) -> paddle.PaddleBOXModel:
     """OCRBoxModel database object."""
     paddle_model_dict = {
         'name': 'paddleocr',
@@ -69,7 +74,7 @@ def paddleocr_box_model() -> paddle.PaddleBOXModel:
     return paddle.PaddleBOXModel(**paddle_model_dict)
 
 @pytest.fixture()
-def paddleocr_ocr_model() -> paddle.PaddleOCRModel:
+def paddleocr_ocr_model(paddle_ocr_env) -> paddle.PaddleOCRModel:
     """OCRBoxModel database object."""
     paddle_model_dict = {
         'name': 'paddleocr',

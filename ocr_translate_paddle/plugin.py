@@ -53,12 +53,23 @@ class PaddleBOXModel(m.OCRBoxModel):
         self.reader = None
         self.dev = os.environ.get('DEVICE', 'cpu')
 
+        self.basedir = os.environ.get('PADDLEOCR_PREFIX', None)
+        if self.basedir is None:
+            tcache = os.environ.get('TRANSFORMERS_CACHE', None)
+            self.basedir = os.path.join(tcache, 'paddleocr') if tcache else None
+        if self.basedir is None:
+            raise ValueError('PADDLEOCR_PREFIX or TRANSFORMERS_CACHE must be set')
+
     def load(self):
         """Load the model into memory."""
         logger.debug('Loading PaddleOCR BOX model (using "ch" language)')
+        lang = 'ch'
         self.reader = PaddleOCR(
-            use_angle_cls=True, lang='ch',
-            use_gpu=(self.dev == 'cuda')
+            use_angle_cls=True, lang=lang,
+            use_gpu=(self.dev == 'cuda'),
+            det_model_dir=os.path.join(self.basedir, lang, 'det'),
+            rec_model_dir=os.path.join(self.basedir, lang, 'rec'),
+            cls_model_dir=os.path.join(self.basedir, lang, 'cls'),
             )
 
     def unload(self) -> None:
@@ -271,6 +282,13 @@ class PaddleOCRModel(m.OCRModel):
         self.lang = None
         self.dev = os.environ.get('DEVICE', 'cpu')
 
+        self.basedir = os.environ.get('PADDLEOCR_PREFIX', None)
+        if self.basedir is None:
+            tcache = os.environ.get('TRANSFORMERS_CACHE', None)
+            self.basedir = os.path.join(tcache, 'paddleocr') if tcache else None
+        if self.basedir is None:
+            raise ValueError('PADDLEOCR_PREFIX or TRANSFORMERS_CACHE must be set')
+
     def load(self):
         """Load the model into memory."""
         logger.debug('Loading PaddleOCR model (nothing to do here)')
@@ -306,7 +324,10 @@ class PaddleOCRModel(m.OCRModel):
             self.lang = lang
             self.reader = PaddleOCR(
                 use_angle_cls=True, lang=lang,
-                use_gpu=(self.dev == 'cuda')
+                use_gpu=(self.dev == 'cuda'),
+                det_model_dir=os.path.join(self.basedir, lang, 'det'),
+                rec_model_dir=os.path.join(self.basedir, lang, 'rec'),
+                cls_model_dir=os.path.join(self.basedir, lang, 'cls'),
                 )
 
         result = self.reader.ocr(
