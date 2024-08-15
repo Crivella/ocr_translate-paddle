@@ -324,7 +324,7 @@ class PaddleOCRModel(m.OCRModel):
             self.lang = lang
             self.reader = PaddleOCR(
                 use_angle_cls=True, lang=lang,
-                use_gpu=(self.dev == 'cuda'),
+                use_gpu=False # (self.dev == 'cuda'),
                 det_model_dir=os.path.join(self.basedir, lang, 'det'),
                 rec_model_dir=os.path.join(self.basedir, lang, 'rec'),
                 cls_model_dir=os.path.join(self.basedir, lang, 'cls'),
