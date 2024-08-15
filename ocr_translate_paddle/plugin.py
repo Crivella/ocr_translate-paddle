@@ -22,9 +22,13 @@ import os
 from typing import Iterable
 
 import numpy as np
+import paddleocr.ppocr.utils.logging as po_log
 from ocr_translate import models as m
-from paddleocr import PaddleOCR
 from PIL import Image
+
+# Ensure no new StreamHandler is initialized
+po_log.logger_initialized['ppocr'] = True
+from paddleocr import PaddleOCR  # pylint: disable=wrong-import-position
 
 logger = logging.getLogger('plugin')
 
@@ -72,7 +76,6 @@ class PaddleBOXModel(m.OCRBoxModel):
             cls_model_dir=os.path.join(self.basedir, lang, 'cls'),
             show_log = False
             )
-        logging.getLogger('ppocr').setLevel(logging.ERROR)
 
     def unload(self) -> None:
         """Unload the model from memory."""
@@ -332,7 +335,6 @@ class PaddleOCRModel(m.OCRModel):
                 cls_model_dir=os.path.join(self.basedir, lang, 'cls'),
                 show_log = False
                 )
-            logging.getLogger('ppocr').setLevel(logging.ERROR)
 
         result = self.reader.ocr(
             np.array(img), cls=True,
