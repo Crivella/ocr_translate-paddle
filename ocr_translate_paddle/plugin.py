@@ -70,7 +70,9 @@ class PaddleBOXModel(m.OCRBoxModel):
             det_model_dir=os.path.join(self.basedir, lang, 'det'),
             rec_model_dir=os.path.join(self.basedir, lang, 'rec'),
             cls_model_dir=os.path.join(self.basedir, lang, 'cls'),
+            show_log = False
             )
+        logging.getLogger('ppocr').setLevel(logging.ERROR)
 
     def unload(self) -> None:
         """Unload the model from memory."""
@@ -328,7 +330,9 @@ class PaddleOCRModel(m.OCRModel):
                 det_model_dir=os.path.join(self.basedir, lang, 'det'),
                 rec_model_dir=os.path.join(self.basedir, lang, 'rec'),
                 cls_model_dir=os.path.join(self.basedir, lang, 'cls'),
+                show_log = False
                 )
+            logging.getLogger('ppocr').setLevel(logging.ERROR)
 
         result = self.reader.ocr(
             np.array(img), cls=True,
