@@ -19,6 +19,7 @@
 """ocr_translate plugin to allow loading of PaddleOCR."""
 import logging
 import os
+from pathlib import Path
 from typing import Iterable
 
 import numpy as np
@@ -32,7 +33,23 @@ from paddleocr import PaddleOCR  # pylint: disable=wrong-import-position
 
 logger = logging.getLogger('plugin')
 
-class PaddleBOXModel(m.OCRBoxModel):
+class EnvMixin:
+    """Mixin class to handle environment variables."""
+    def __init__(self, *args, **kwargs):
+        """Initialize the mixin."""
+        super().__init__(*args, **kwargs)
+
+        self.dev = os.environ.get('DEVICE', 'cpu')
+
+        if 'PADDLEOCR_PREFIX' in os.environ:
+            self.basedir = Path(os.environ.get('PADDLEOCR_PREFIX'))
+        elif 'OCT_BASE_DIR' in os.environ:
+            self.basedir = Path(os.environ.get('OCT_BASE_DIR')) / 'models' / 'paddleocr'
+        else:
+            raise ValueError('No TESSERAPADDLEOCR_PREFIXCT_PREFIX or OCT_BASE_DIR environment variable found.')
+        self.basedir.mkdir(exist_ok=True, parents=True)
+
+class PaddleBOXModel(m.OCRBoxModel, EnvMixin):
     """OCRtranslate plugin to allow usage of easyocr for box detection."""
     ALLOWED_OPTIONS = {
         **m.OCRBoxModel.ALLOWED_OPTIONS,
@@ -52,17 +69,8 @@ class PaddleBOXModel(m.OCRBoxModel):
 
     def __init__(self, *args, **kwargs):
         """Initialize the model."""
-        super().__init__(*args, **kwargs)
-
         self.reader = None
-        self.dev = os.environ.get('DEVICE', 'cpu')
-
-        self.basedir = os.environ.get('PADDLEOCR_PREFIX', None)
-        if self.basedir is None:
-            tcache = os.environ.get('TRANSFORMERS_CACHE', None)
-            self.basedir = os.path.join(tcache, 'paddleocr') if tcache else None
-        if self.basedir is None:
-            raise ValueError('PADDLEOCR_PREFIX or TRANSFORMERS_CACHE must be set')
+        super().__init__(*args, **kwargs)
 
     def load(self):
         """Load the model into memory."""
@@ -274,25 +282,16 @@ class PaddleBOXModel(m.OCRBoxModel):
 
         return bboxes
 
-class PaddleOCRModel(m.OCRModel):
+class PaddleOCRModel(m.OCRModel, EnvMixin):
     """OCRtranslate plugin to allow loading of PaddleOCR as text OCR."""
     class Meta: # pylint: disable=missing-class-docstring
         proxy = True
 
     def __init__(self, *args, **kwargs):
         """Initialize the model."""
-        super().__init__(*args, **kwargs)
-
-        self.reader = None
         self.lang = None
-        self.dev = os.environ.get('DEVICE', 'cpu')
-
-        self.basedir = os.environ.get('PADDLEOCR_PREFIX', None)
-        if self.basedir is None:
-            tcache = os.environ.get('TRANSFORMERS_CACHE', None)
-            self.basedir = os.path.join(tcache, 'paddleocr') if tcache else None
-        if self.basedir is None:
-            raise ValueError('PADDLEOCR_PREFIX or TRANSFORMERS_CACHE must be set')
+        self.reader = None
+        super().__init__(*args, **kwargs)
 
     def load(self):
         """Load the model into memory."""

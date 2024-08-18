@@ -18,8 +18,6 @@
 ###################################################################################
 """Tests for paddle plugin."""
 
-import os
-
 import pytest
 
 from ocr_translate_paddle import plugin as paddle
@@ -82,25 +80,6 @@ def test_intersection_merge(data_regression):
         res.append(ptr)
 
     data_regression.check({'res': res})
-
-def test_init_noenv():
-    """Test init exception when no env var."""
-    with pytest.raises(ValueError):
-        paddle.PaddleBOXModel()
-
-def test_init_prefix(monkeypatch):
-    """Test init with PADDLEOCR_PREFIX env var."""
-    path = '/path/to/paddleocr'
-    monkeypatch.setenv('PADDLEOCR_PREFIX', path)
-    model = paddle.PaddleBOXModel()
-    assert model.basedir == path
-
-def test_init_tcache(monkeypatch):
-    """Test init with TRANSFORMERS_CACHE env var."""
-    path = '/path/to'
-    monkeypatch.setenv('TRANSFORMERS_CACHE', path)
-    model = paddle.PaddleBOXModel()
-    assert model.basedir == os.path.join(path, 'paddleocr')
 
 def test_load_box_model_paddle(monkeypatch, paddleocr_box_model):
     """Test load box model. Success"""

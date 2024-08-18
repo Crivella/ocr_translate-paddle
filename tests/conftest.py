@@ -18,6 +18,8 @@
 ###################################################################################
 """Fixtures for tests."""
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 from PIL import Image
@@ -135,3 +137,29 @@ def mock_reader_ocr():
             return MockReader.res
 
     return MockReader
+
+@pytest.fixture(autouse=True)
+def base(monkeypatch, tmpdir) -> Path:
+    """Mock base classes."""
+    tmp = str(tmpdir / 'base')
+    monkeypatch.setenv('OCT_BASE_DIR', tmp)
+    return Path(tmp)
+
+@pytest.fixture()
+def prefix(monkeypatch, tmpdir) -> Path:
+    """Mock base classes."""
+    tmp = str(tmpdir / 'prefix')
+    monkeypatch.setenv('PADDLEOCR_PREFIX', tmp)
+    return Path(tmp)
+
+@pytest.fixture()
+def device(monkeypatch) -> str:
+    """Mock device."""
+    monkeypatch.setenv('DEVICE', 'cpu')
+    return 'cpu'
+
+@pytest.fixture()
+def device_cuda(monkeypatch) -> str:
+    """Mock device."""
+    monkeypatch.setenv('DEVICE', 'cuda')
+    return 'cuda'
