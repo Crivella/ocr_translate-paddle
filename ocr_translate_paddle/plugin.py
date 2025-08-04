@@ -23,15 +23,14 @@ from pathlib import Path
 from typing import Iterable
 
 import numpy as np
-import paddleocr.ppocr.utils.logging as po_log
 from ocr_translate import models as m
+# from paddleocr import PaddleOCR  # pylint: disable=wrong-import-position
 from PIL import Image
 
-# Ensure no new StreamHandler is initialized
-po_log.logger_initialized['ppocr'] = True
-from paddleocr import PaddleOCR  # pylint: disable=wrong-import-position
-
 logger = logging.getLogger('plugin')
+
+LOADED = False
+PaddleOCR = None
 
 class EnvMixin:
     """Mixin class to handle environment variables."""
@@ -41,13 +40,29 @@ class EnvMixin:
 
         self.dev = os.environ.get('DEVICE', 'cpu')
 
+        if 'PADDLE_PDX_CACHE_HOME' in os.environ:
+            _from = 'PADDLE_PDX_CACHE_HOME'
+            self.basedir = Path(os.environ.get('PADDLE_PDX_CACHE_HOME'))
         if 'PADDLEOCR_PREFIX' in os.environ:
+            _from = 'PADDLEOCR_PREFIX'
             self.basedir = Path(os.environ.get('PADDLEOCR_PREFIX'))
         elif 'OCT_BASE_DIR' in os.environ:
+            _from = 'OCT_BASE_DIR'
             self.basedir = Path(os.environ.get('OCT_BASE_DIR')) / 'models' / 'paddleocr'
         else:
-            raise ValueError('No TESSERAPADDLEOCR_PREFIXCT_PREFIX or OCT_BASE_DIR environment variable found.')
+            raise ValueError('No PADDLE_PDX_CACHE_HOME, PADDLEOCR_PREFIX or OCT_BASE_DIR environment variable found.')
+        logger.info(f'Taking model dir from { _from }: {self.basedir}')
         self.basedir.mkdir(exist_ok=True, parents=True)
+
+        os.environ['PADDLE_PDX_CACHE_HOME'] = str(self.basedir)
+
+        # This needs to be loaded after `PADDLE_PDX_CACHE_HOME` is set.
+        global LOADED
+        global PaddleOCR
+        if not LOADED:
+            from paddleocr import \
+                PaddleOCR  # pylint: disable=wrong-import-position
+            LOADED = True
 
 class PaddleBOXModel(m.OCRBoxModel, EnvMixin):
     """OCRtranslate plugin to allow usage of easyocr for box detection."""
@@ -77,12 +92,8 @@ class PaddleBOXModel(m.OCRBoxModel, EnvMixin):
         logger.debug('Loading PaddleOCR BOX model (using "ch" language)')
         lang = 'ch'
         self.reader = PaddleOCR(
-            use_angle_cls=True, lang=lang,
-            use_gpu=False,
-            det_model_dir=os.path.join(self.basedir, lang, 'det'),
-            rec_model_dir=os.path.join(self.basedir, lang, 'rec'),
-            cls_model_dir=os.path.join(self.basedir, lang, 'cls'),
-            show_log = False
+            lang=lang,
+            use_textline_orientation=True,
             )
 
     def unload(self) -> None:
@@ -263,18 +274,42 @@ class PaddleBOXModel(m.OCRBoxModel, EnvMixin):
 
         image = image.convert('RGB')
 
-        result = self.reader.ocr(
-            np.array(image), cls=True,
-            rec=False
-            )[0]
+        result = self.reader.predict(
+            np.array(image),
+            use_doc_orientation_classify=True,
+            # rec=False
+            )#[0]
+        def print_recursive(result, level=1):
+            """Print the result recursively."""
+            for k, v in result.items():
+                if isinstance(v, dict):
+                    print('|  ' * level + f'{k}:')
+                    print_recursive(v, level + 1)
+                elif isinstance(v, list):
+                    print('|  ' * level + f'{k}: list<{len(v)}> {str(v)[:50]}')
+                elif isinstance(v, np.ndarray):
+                    print('|  ' * level + f'{k}: array<{v.shape}>')
+                else:
+                    print('|  ' * level + f'{k}: {str(v)[:50]}')
+        for idx, res in enumerate(result):
+            logger.debug(f'RESULTS #{idx} --------------')
+            print_recursive(res)
+        result = result[0]
+        result = result or {}
+
+        # bboxes = []
+        # for res in result.get('rec_boxes', []):
+        #     print(f'RESULT BOX: {list(res)}')
+        #     b, l, t, r = np.array(res)
 
         bboxes = []
-        for res in result:
+        for res in result.get('rec_polys', []):
             box = np.array(res)
-            l = box[:, 0].min()
-            r = box[:, 0].max()
-            b = box[:, 1].min()
-            t = box[:, 1].max()
+            b = box[:, 0].min()
+            t = box[:, 0].max()
+            l = box[:, 1].min()
+            r = box[:, 1].max()
+            print(f'RESULT BOX: {(l, r, b, t)}')
             bboxes.append((l, r, b, t))
         bboxes = self.trim_overlapping_bboxes(bboxes)
 
@@ -328,26 +363,31 @@ class PaddleOCRModel(m.OCRModel, EnvMixin):
             self.lang = lang
             self.reader = PaddleOCR(
                 use_angle_cls=True, lang=lang,
-                use_gpu=False,
-                det_model_dir=os.path.join(self.basedir, lang, 'det'),
-                rec_model_dir=os.path.join(self.basedir, lang, 'rec'),
-                cls_model_dir=os.path.join(self.basedir, lang, 'cls'),
-                show_log = False
                 )
 
-        result = self.reader.ocr(
-            np.array(img), cls=True,
+        result = self.reader.predict(
+            np.array(img),
+            use_doc_orientation_classify=True,
             # det=False
-            )[0]
-        result = result or []
+            )#[0]._to_str()
 
-        logger.debug(f'PaddleOCR result: {result}')
+        def print_recursive(result, level=1):
+            """Print the result recursively."""
+            for k, v in result.items():
+                if isinstance(v, dict):
+                    print('|  ' * level + f'{k}:')
+                    print_recursive(v, level + 1)
+                elif isinstance(v, np.ndarray):
+                    print('|  ' * level + f'{k}: array<{v.shape}>')
+                else:
+                    print('|  ' * level + f'{k}: {str(v)[:50]}')
+        for idx, res in enumerate(result):
+            print(f'RESULTS #{idx} --------------')
+            print_recursive(res)
+        result = result[0]
+        result = result or {}
 
-        generated_text = []
-        for line in result:
-            text, _ = line[1]
-            generated_text.append(text)
-
+        generated_text = result.get('rec_texts', [])
         generated_text = ' '.join(generated_text)
 
         return generated_text
