@@ -20,96 +20,6 @@
 
 __version__ = '0.3.0'
 
-# LATIN_LANGS = [
-#     "af",
-#     "az",
-#     "bs",
-#     "cs",
-#     "cy",
-#     "da",
-#     "de",
-#     "es",
-#     "et",
-#     "fr",
-#     "ga",
-#     "hr",
-#     "hu",
-#     "id",
-#     "is",
-#     "it",
-#     "ku",
-#     "la",
-#     "lt",
-#     "lv",
-#     "mi",
-#     "ms",
-#     "mt",
-#     "nl",
-#     "no",
-#     "oc",
-#     "pi",
-#     "pl",
-#     "pt",
-#     "ro",
-#     "rs_latin",
-#     "sk",
-#     "sl",
-#     "sq",
-#     "sv",
-#     "sw",
-#     "tl",
-#     "tr",
-#     "uz",
-#     "vi",
-#     "french",
-#     "german",
-# ]
-# ARABIC_LANGS = ["ar", "fa", "ug", "ur"]
-# ESLAV_LANGS = ["ru", "be", "uk"]
-# CYRILLIC_LANGS = [
-#     "ru",
-#     "rs_cyrillic",
-#     "be",
-#     "bg",
-#     "uk",
-#     "mn",
-#     "abq",
-#     "ady",
-#     "kbd",
-#     "ava",
-#     "dar",
-#     "inh",
-#     "che",
-#     "lbe",
-#     "lez",
-#     "tab",
-# ]
-# DEVANAGARI_LANGS = [
-#     "hi",
-#     "mr",
-#     "ne",
-#     "bh",
-#     "mai",
-#     "ang",
-#     "bho",
-#     "mah",
-#     "sck",
-#     "new",
-#     "gom",
-#     "sa",
-#     "bgc",
-# ]
-# SPECIFIC_LANGS = [
-#     "ch",
-#     "en",
-#     "korean",
-#     "japan",
-#     "chinese_cht",
-#     "te",
-#     "ka",
-#     "ta",
-# ]
-
 
 SUPPORTED_LANGUAGES = [
     'ar', 'en', 'hi', 'fr', 'fa', 'ur', 'oc', 'it', 'mr', 'ne', 'pt', 'bg', 'et', 'be', 'ga', 'te', 'hr', 'hu',
@@ -128,13 +38,14 @@ ISO1_MAP = {
     'sr': 'rs_cyrillic',
     'av': 'ava',
 }
-paddle_box_model_data = {
-    'name': 'paddle/paddle-box',
-    'lang': SUPPORTED_LANGUAGES,
-    'lang_code': 'iso1',
-    'iso1_map': ISO1_MAP,
-    'entrypoint': 'paddle.box',
-}
+
+# paddle_box_model_data = {
+#     'name': 'paddle/paddle-box',
+#     'lang': SUPPORTED_LANGUAGES,
+#     'lang_code': 'iso1',
+#     'iso1_map': ISO1_MAP,
+#     'entrypoint': 'paddle.box',
+# }
 
 paddle_ocr_model_data = {
     'name': 'paddle/paddle-ocr',

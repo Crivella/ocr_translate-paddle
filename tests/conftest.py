@@ -85,16 +85,16 @@ def image_pillow():
     npimg = np.random.randint(0,255,(25,25,3), dtype=np.uint8)
     return Image.fromarray(npimg)
 
-@pytest.fixture()
-def paddleocr_box_model() -> paddle.PaddleBOXModel:
-    """OCRBoxModel database object."""
-    paddle_model_dict = {
-        'name': 'paddleocr',
-        'language_format': 'iso1',
-        'entrypoint': 'paddle.box'
-    }
+# @pytest.fixture()
+# def paddleocr_box_model() -> paddle.PaddleBOXModel:
+#     """OCRBoxModel database object."""
+#     paddle_model_dict = {
+#         'name': 'paddleocr',
+#         'language_format': 'iso1',
+#         'entrypoint': 'paddle.box'
+#     }
 
-    return paddle.PaddleBOXModel(**paddle_model_dict)
+#     return paddle.PaddleBOXModel(**paddle_model_dict)
 
 @pytest.fixture()
 def paddleocr_ocr_model() -> paddle.PaddleOCRModel:
@@ -123,37 +123,63 @@ def mock_called(request):
 
     return mock_call
 
-@pytest.fixture(scope='function')
-def mock_reader():
-    """Mock paddleocr reader."""
-    class MockReader(): # pylint: disable=missing-class-docstring
-        res = [
-            [
-                ((1,3), (1,4), (2,3), (2,4)),
-                ((5,7), (5,8), (6,7), (6,8)),
-            ]
-        ]
-        def __init__(self):
-            self.called = False
-        def ocr(self, *args, **kwargs): # pylint: disable=missing-function-docstring,unused-argument
-            self.called = True
-            return MockReader.res
-
-    return MockReader
+# RESULTS #0 --------------
+# |  input_path: None
+# |  page_index: None
+# |  doc_preprocessor_res:
+# |  |  input_path: None
+# |  |  page_index: None
+# |  |  input_img: array<(182, 28, 3)>
+# |  |  model_settings:
+# |  |  |  use_doc_orientation_classify: True
+# |  |  |  use_doc_unwarping: True
+# |  |  angle: 0
+# |  |  rot_img: array<(182, 28, 3)>
+# |  |  output_img: array<(182, 28, 3)>
+# |  dt_polys: [array([[  0,   9],
+#        ...,
+#        [  0, 182]]
+# |  model_settings:
+# |  |  use_doc_preprocessor: True
+# |  |  use_textline_orientation: True
+# |  text_det_params:
+# |  |  limit_side_len: 64
+# |  |  limit_type: min
+# |  |  thresh: 0.3
+# |  |  max_side_limit: 4000
+# |  |  box_thresh: 0.6
+# |  |  unclip_ratio: 1.5
+# |  text_type: general
+# |  text_rec_score_thresh: 0.0
+# |  return_word_box: False
+# |  rec_texts: ['トレトよね']
+# |  rec_scores: [0.9329773187637329]
+# |  rec_polys: [array([[  0,   9],
+#        ...,
+#        [  0, 182]]
+# |  vis_fonts: [<paddlex.utils.fonts.Font object at 0x7eb6043e2d5
+# |  textline_orientation_angles: [0]
+# |  rec_boxes: array<(1, 4)>
 
 @pytest.fixture(scope='function')
 def mock_reader_ocr():
     """Mock paddleocr reader."""
     class MockReader(): # pylint: disable=missing-class-docstring
         res = [
-            [
-                [((1,3), (1,4), (2,3), (2,4)), ('mock_line1', 1.0)],
-                [((5,7), (5,8), (6,7), (6,8)), ('mock_line2', 1.0)],
-            ]
+            # [
+                # [((1,3), (1,4), (2,3), (2,4)), ('mock_line1', 1.0)],
+                # [((5,7), (5,8), (6,7), (6,8)), ('mock_line2', 1.0)],
+            {
+                'rec_texts': ['mock_line1', 'mock_line2'],
+                'rec_scores': [1.0, 1.0]
+            },
+            # {'rec_text': ['mock_line2'], 'rex_scores': [1.0]}
+            # ]
         ]
         def __init__(self):
             self.called = False
-        def ocr(self, *args, **kwargs): # pylint: disable=missing-function-docstring,unused-argument
+
+        def predict(self, *args, **kwargs): # pylint: disable=missing-function-docstring,unused-argument
             self.called = True
             return MockReader.res
 

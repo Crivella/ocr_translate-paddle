@@ -52,11 +52,14 @@ pre-commit = [
     "pylint-django",
 ]
 
-[project.entry-points."ocr_translate.box_data"]
-"box.paddle" = "ocr_translate_paddle:paddle_box_model_data"
+# Need to understand how to properly extract data. Right now it looks like the coordinates are for an
+# XY swapped image, but even considering that, it looks like there is some rescaling going on that makes the boxes
+# have a shifted closer to the edges.
+# [project.entry-points."ocr_translate.box_data"]
+# "box.paddle" = "ocr_translate_paddle:paddle_box_model_data"
 
-[project.entry-points."ocr_translate.box_models"]
-"paddle.box" = "ocr_translate_paddle.plugin:PaddleBOXModel"
+# [project.entry-points."ocr_translate.box_models"]
+# "paddle.box" = "ocr_translate_paddle.plugin:PaddleBOXModel"
 
 [project.entry-points."ocr_translate.ocr_data"]
 "ocr.paddle" = "ocr_translate_paddle:paddle_ocr_model_data"
