@@ -105,7 +105,9 @@ def paddleocr_ocr_model() -> paddle.PaddleOCRModel:
         'entrypoint': 'paddle.ocr'
     }
 
-    return paddle.PaddleOCRModel(**paddle_model_dict)
+    res = paddle.PaddleOCRModel(**paddle_model_dict)
+    res.DISABLE_LOAD_EVENTS = True
+    return res
 
 @pytest.fixture(scope='function')
 def mock_called(request):
