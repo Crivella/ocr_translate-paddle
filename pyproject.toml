@@ -105,7 +105,8 @@ good-names = [
     "l2", "r2", "b2", "t2",
     "i", "j",
     "k", "v",
-    "f", "X", "Y"
+    "f", "X", "Y",
+    "DISABLE_LOAD_EVENTS"
 ]
 
 [tool.pylint.design]
