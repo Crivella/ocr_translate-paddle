@@ -18,7 +18,7 @@
 ###################################################################################
 """Plugins to enable usage of PaddleOCR in ocr_translate"""
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 
 SUPPORTED_LANGUAGES = [
