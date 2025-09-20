@@ -357,7 +357,7 @@ class PaddleOCRModel(m.OCRModel, EnvMixin):
             str: The text extracted from the image.
         """
 
-        if lang != self.lang:
+        if lang != self.lang or self.reader is None:
             self.lang = lang
             self.reader = PaddleOCR(
                 use_angle_cls=True, lang=lang,
