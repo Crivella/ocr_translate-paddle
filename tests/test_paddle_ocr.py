@@ -19,13 +19,13 @@
 """Tests for paddle plugin."""
 
 # pylint: disable=protected-access
-
 from ocr_translate_paddle import plugin as paddle
 
 
 def test_load_ocr_model_paddle(monkeypatch, paddleocr_ocr_model):
     """Test load box model. Success"""
     monkeypatch.setattr(paddle, 'PaddleOCR', lambda *args, **kwargs: 'mocked')
+    monkeypatch.setattr(paddleocr_ocr_model, 'DISABLE_LOAD_EVENTS', True)
     paddleocr_ocr_model.load()
     assert paddleocr_ocr_model.reader is None
 
